@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
 '''
-Created on 2017年9月6日
-@author: rob
+Created on 2017年10月19日
+@author: rob,Sherlock
 '''
 #设置中文字体
 from pylab import *
@@ -35,12 +36,13 @@ connection=pymysql.connect(
 
 cursor=connection.cursor()
 BATCH_SIZE = 5000
-cd = pd.read_csv('tongda-tmd-cid.csv')
-for i in range(0,55):
-    tmd = cd.tmd[i+1]
-    cid = cd.cid[i+1]
+cd = pd.read_csv('tongdaID.csv')
+for i in range(0,2):
+    tmd = cd.tmd[i]
+    #print(tmd)
+    cid = cd.cid[i]
     timegap = "AND bc.time_stamp >='2017-10-01 00:00:00' \
-            AND bc.time_stamp <='2017-10-02 00:00:00' "
+            AND bc.time_stamp <='2017-10-01 02:00:00' "
          
     queryBmu="SELECT id_group,id_station ,I_aver ,time_stamp \
             ,V_cell01 ,V_cell02 ,V_cell03 ,V_cell04 ,V_cell05 ,V_cell06 \
@@ -79,10 +81,8 @@ for i in range(0,55):
              " 
     '''
     count_sql = "SELECT count(*) FROM bess_group_data_10 bc \
-            WHERE bc.id_station = '2c' \
-            AND bc.time_stamp >='2017-10-01 00:00:00' \
-            AND bc.time_stamp <='2017-10-02 00:00:00' \
-             "
+            WHERE bc.id_station = '2c'" + timegap
+            
     try:
         
         cursor.execute(count_sql)
@@ -112,9 +112,10 @@ for i in range(0,55):
         ig = df.drop_duplicates(['id_group'])
         #print (ig) #排序
         #ig=ig.pop('id_group')
-        ig=ig.sort_values(by=['id_group'])    #按列进行排序)
+        #ig=ig.sort_values('id_group')  
+        #print(ig)  #按列进行排序)
         id_groups = list(ig['id_group']) 
-        #print(id_groups)
+        print(id_groups)
         groupNum = len(id_groups)
         #print('groupNum=',groupNum)
         
@@ -157,8 +158,8 @@ for i in range(0,55):
     
         #df.reset_index()
         df0.sort_index()#按列进行排序
-        df0.to_csv('data_bmu1'+tmd+'.csv')
-        print('data saved to data_bmu1'+tmd+'.csv')
+        df0.to_csv('data_bmu-'+tmd+'.csv')
+        print('data saved to data_bmu-'+tmd+'.csv')
         #print(df)
         
         '''利用Pandas数据表格进行画图工作'''
