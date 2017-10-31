@@ -38,16 +38,15 @@ connection=pymysql.connect(
 cursor=connection.cursor()
 BATCH_SIZE = 5000
 cd = pd.read_csv('foshan-tmd-cid.csv')
-for i in range(0,16):
+for i in range(0,1):
     tmd = cd.tmd[i]
     cid = cd.cid[i]
     timegap = "AND bc.time_stamp >='2017-10-25 00:00:00' \
-            AND bc.time_stamp <='2017-10-25 15:00:00' "
+            AND bc.time_stamp <='2017-10-25 05:00:00' "
     
     queryBmu="SELECT id_group,id_station ,I_aver ,time_stamp \
             ,V_cell01 ,V_cell02 ,V_cell03 ,V_cell04 ,V_cell05 ,V_cell06 \
             ,V_cell07 ,V_cell08 ,V_cell09 ,V_cell10 ,V_cell11 ,V_cell12 \
-            ,SOC_goup\
         FROM bess_group_data_10 bc \
             WHERE bc.id_station = 'FS_Station' \
             AND (bc.id_cluster ='"\
@@ -67,31 +66,16 @@ for i in range(0,16):
             AND (bc.id_cluster='"\
             + cid + "') " \
             + timegap
-    '''
-    query1="SELECT \
-            id_group \
-            ,I_aver \
-            ,time_stamp \
-            ,V_cell01 \
-        FROM bess_group_data_10 bc \
-            WHERE bc.id_station = '2c' \
-            AND (bc.id_group=168311326260102 OR bc.id_group=168311322220101) \
-            AND bc.time_stamp >='2017-10-25 00:00:00' \
-            AND bc.time_stamp <='2017-10-25 15:00:00' \
-             " 
-    '''
+
     count_sql = "SELECT count(*) FROM bess_group_data_10 bc \
-            WHERE bc.id_station = 'FS_Station' \
-            AND bc.time_stamp >='2017-10-25 00:00:00' \
-            AND bc.time_stamp <='2017-10-25 15:00:00' \
-             "
+            WHERE bc.id_station = 'FS_Station' "+timegap
          
     try:
         
         cursor.execute(count_sql)
         count=0
         for row1 in cursor:
-            print(row1)
+            #print(row1)
             #do_thing()
             count=row1[0]
             print("count=",count)
@@ -118,54 +102,38 @@ for i in range(0,16):
         #ig=ig.pop('id_group')
         #ig=ig.sort_values(by=['id_group'])    #按列进行排序)
         id_groups = list(ig['id_group']) 
-        #print(id_groups)
+        print(id_groups)
         groupNum = len(id_groups)
         print('groupNum=',groupNum)
         
         
         
         
-        df0 = df[(df['id_station'] == 'FS_Station') & (df['id_group']==id_groups[1] ) & (df.index<'2017-10-25 15:00:00')]
-        t1=0
-        k=1
-        for i in range(0,len(df0)):
-            t2=df0.index[i]
-            if(t1==t2):
-                #print("时间重复："+t2)
-                k=k+1
-                df0.index._values[i] = pd.to_datetime(dt(t2.year,t2.month,t2.day,t2.hour,t2.minute,t2.second,microsecond=500+k*10))
-            else:
-                k=0
-                df0.index._values[i] = pd.to_datetime(dt(t2.year,t2.month,t2.day,t2.hour,t2.minute,t2.second,microsecond=0))
-            t1=t2
+        df0 = df[(df['id_station'] == 'FS_Station') & (df['id_group']==id_groups[0] ) & (df.index<'2017-10-25 15:00:00')]
+        df0.to_csv('df0.csv')
+        #k=1
+
         #df0.to_csv('data_bmu1-df0.csv')
         
-        for iGroup in range(1,20):
+        for iGroup in range(2,groupNum+1):
             df2 = df[(df['id_station'] == 'FS_Station') & (df['id_group']==id_groups[iGroup-1] ) & (df.index<'2017-10-25 15:00:00')]
-            t1=0
+            #t1=0
             k=1
-            for i in range(0,len(df2)):
-                t2=df2.index[i]
-                if(t1==t2):
-                    #print("时间重复："+t2)
-                    k=k+1
-                    df2.index._values[i] = pd.to_datetime(dt(t2.year,t2.month,t2.day,t2.hour,t2.minute,t2.second,microsecond=500+k*10))
-                else:
-                    k=0
-                    df2.index._values[i] = pd.to_datetime(dt(t2.year,t2.month,t2.day,t2.hour,t2.minute,t2.second,microsecond=0))
-                t1=t2        
+            #df2.to_csv('df'+str(iGroup-1)+'.csv')
             for k in range(1, 13):
                 newhead = 'V_cell'+'%d' %((k)+(iGroup-1)*12)
                 oldhead = ('V_cell0'+'%d'%k) if k<10 else('V_cell'+'%d' %k)
-                #print(newhead)
                 out1 = df2.pop(oldhead)
-                #print(out1)
+                #out1.to_csv('a.csv')
                 df0.loc[:,(newhead)] = out1
                 #df0.loc[:,newhead] = out1.apply(lambda x:out1)
-    
+            #print(newhead)
+            #print('haha')
+            #print(oldhead)
+            #df0.to_csv('data_bmu'+str(iGroup)+tmd+'.csv')
         #df.reset_index()
         df0.sort_index()#按列进行排序
-        df0.to_csv('data_bmu1'+tmd+'.csv')
+        df0.to_csv('data_bmu0'+tmd+'.csv')
         print('data saved to data_bmu1'+tmd+'.csv')
         #print(df)
         
