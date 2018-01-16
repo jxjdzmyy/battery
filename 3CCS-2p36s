@@ -111,14 +111,14 @@ for i in range(0,1):
         
         
         
-        df0 = df[(df['id_station'] == '0001') & (df['id_group']==id_groups[0] ) & (df.index<'2018-1-13 23:00:00')]
+        df0 = df[(df['id_station'] == '0001') & (df['id_group']==id_groups[0] ) & (df.index<'2018-1-15 23:00:00')]
         #df0.to_csv('df0.csv')
         #k=1
 
         #df0.to_csv('data_bmu1-df0.csv')
         
         for iGroup in range(2,groupNum+1):
-            df2 = df[(df['id_station'] == '0001') & (df['id_group']==id_groups[iGroup-1] ) & (df.index<'2018-1-13 23:00:00')]
+            df2 = df[(df['id_station'] == '0001') & (df['id_group']==id_groups[iGroup-1] ) & (df.index<'2018-1-15 23:00:00')]
             #t1=0
             k=1
             #df2.to_csv('df'+str(iGroup-1)+'.csv')
@@ -136,7 +136,7 @@ for i in range(0,1):
         #df.reset_index()
         df0.sort_index()#按列进行排序
         df0.to_csv(td+'data_bmu'+tmd+'.csv')
-        print('data saved to'+td+'data_bmu1'+tmd+'.csv')
+        #print('data saved to'+td+'data_bmu1'+tmd+'.csv')
         #print(df)
         '''利用Pandas数据表格进行画图工作'''
         #print(df0['V_cell16'])
@@ -335,15 +335,15 @@ for i in range(0,1):
         # Source
         annotations.append(dict(xref='paper', yref='paper', x=0.5, y=-0.05,
                                   xanchor='center', yanchor='top',
-                                  text='数据来源: 住总万科电站 & ' +
-                                       '削峰填谷数据',
+                                  text='数据来源: 3C系统调试 & ' +
+                                       '测试数据',
                                   font=dict(family='Arial',
                                             size=12,
                                             color='rgb(150,150,150)'),
                                   showarrow=False))
         layout['annotations'] = annotations
         fig = go.Figure(data=traces, layout=layout)
-        plot_url = plotly.offline.plot(fig,filename=td+tmd+'.html')
+        plot_url = plotly.offline.plot(fig,filename=td+'-'+tmd+'.html')
     except pymysql.Error as err:
         print("query table 'mytable' failed.")
         print("Error: {}".format(err.msg))
